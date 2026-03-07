@@ -7,7 +7,6 @@ import '../../../core/providers/theme_provider.dart';
 import '../../widgets/eye_logo.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../medication/medication_screen.dart';
-import '../assessment/assessment_screen.dart';
 import '../eye_pressure/eye_pressure_screen.dart';
 import '../education/education_screen.dart';
 
@@ -31,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
       DashboardScreen(
           onNavigateToTab: (i) => setState(() => _currentIndex = i)),
       const MedicationScreen(),
-      const AssessmentScreen(),
       const EyePressureScreen(),
       const EducationScreen(),
     ];
@@ -183,7 +181,6 @@ class _FloatingBottomNav extends StatelessWidget {
   static const _items = [
     _NavItem(icon: Icons.dashboard_rounded, label: AppStrings.navDashboard),
     _NavItem(icon: Icons.medication_rounded, label: AppStrings.navMedication),
-    _NavItem(icon: Icons.quiz_rounded, label: AppStrings.navAssessment),
     _NavItem(icon: Icons.water_drop_rounded, label: AppStrings.navPressure),
     _NavItem(icon: Icons.menu_book_rounded, label: AppStrings.navEducation),
   ];

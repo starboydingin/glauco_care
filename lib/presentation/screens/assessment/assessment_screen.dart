@@ -4,7 +4,8 @@ import '../../../core/constants/app_strings.dart';
 import '../home/home_screen.dart';
 
 class AssessmentScreen extends StatefulWidget {
-  const AssessmentScreen({super.key});
+  final bool standalone;
+  const AssessmentScreen({super.key, this.standalone = false});
 
   @override
   State<AssessmentScreen> createState() => _AssessmentScreenState();
@@ -18,6 +19,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
     null, null, null, null, null,
   ];
   bool _showResult = false;
+  late bool _showLanding;
 
   late AnimationController _animController;
   late Animation<Offset> _slideAnimation;
@@ -131,6 +133,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
   @override
   void initState() {
     super.initState();
+    _showLanding = widget.standalone;
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -171,6 +174,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
       _currentQuestion = 0;
       _answers.fillRange(0, 10, null);
       _showResult = false;
+      _showLanding = widget.standalone;
     });
   }
 
@@ -217,13 +221,59 @@ class _AssessmentScreenState extends State<AssessmentScreen>
     final textSec =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
 
+    if (_showLanding) {
+      return _LandingView(
+        isDark: isDark,
+        textPrimary: textPrimary,
+        textSec: textSec,
+        onStart: () => setState(() => _showLanding = false),
+      );
+    }
+
+    if (widget.standalone) {
+      // Wrapped in Scaffold so it can be pushed via Navigator
+      return Scaffold(
+        backgroundColor:
+            isDark ? AppColors.darkBg : AppColors.lightBg,
+        body: SafeArea(
+          child: _showResult
+              ? _ResultScreen(
+                  result: _result,
+                  answers: _answers,
+                  questions: _questions,
+                  isDark: isDark,
+                  textPrimary: textPrimary,
+                  textSec: textSec,
+                  onRestart: _restart,
+                  standalone: true,
+                )
+              : _QuestionnaireView(
+                  currentQuestion: _currentQuestion,
+                  questions: _questions,
+                  answers: _answers,
+                  slideAnimation: _slideAnimation,
+                  fadeAnimation: _fadeAnimation,
+                  isDark: isDark,
+                  textPrimary: textPrimary,
+                  textSec: textSec,
+                  onSelect: _selectAnswer,
+                  onNext: _nextQuestion,
+                  standalone: true,
+                ),
+        ),
+      );
+    }
+
     return _showResult
         ? _ResultScreen(
             result: _result,
+            answers: _answers,
+            questions: _questions,
             isDark: isDark,
             textPrimary: textPrimary,
             textSec: textSec,
             onRestart: _restart,
+            standalone: false,
           )
         : _QuestionnaireView(
             currentQuestion: _currentQuestion,
@@ -236,7 +286,205 @@ class _AssessmentScreenState extends State<AssessmentScreen>
             textSec: textSec,
             onSelect: _selectAnswer,
             onNext: _nextQuestion,
+            standalone: false,
           );
+  }
+}
+
+// ─── Landing View ────────────────────────────────────────────────────────────
+
+class _LandingView extends StatelessWidget {
+  final bool isDark;
+  final Color textPrimary;
+  final Color textSec;
+  final VoidCallback onStart;
+
+  const _LandingView({
+    required this.isDark,
+    required this.textPrimary,
+    required this.textSec,
+    required this.onStart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+      appBar: AppBar(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded,
+              color: isDark ? AppColors.textWhite : AppColors.textDark),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Self-Assessment',
+          style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: textPrimary),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Hero illustration area
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 32),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: AppColors.gradientPurple,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                      blurRadius: 28,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    child: const Icon(Icons.remove_red_eye_rounded,
+                        color: Colors.white, size: 40),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Cek Kondisi Mata Hari Ini',
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Jawab 10 pertanyaan singkat untuk mengetahui kondisi matamu saat ini.',
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xCCFFFFFF),
+                        height: 1.5),
+                    textAlign: TextAlign.center,
+                  ),
+                ]),
+              ),
+              const SizedBox(height: 28),
+
+              Text(
+                'Apa itu Self-Assessment?',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: textPrimary),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Self-assessment membantu kamu memantau perubahan gejala yang mungkin berkaitan dengan glaukoma secara mandiri. Hasil penilaian tidak menggantikan diagnosis dokter.',
+                style:
+                    TextStyle(fontSize: 13, color: textSec, height: 1.6),
+              ),
+              const SizedBox(height: 20),
+
+              _InfoRow(
+                  icon: Icons.timer_rounded,
+                  text: 'Hanya butuh ±1 menit',
+                  isDark: isDark),
+              const SizedBox(height: 10),
+              _InfoRow(
+                  icon: Icons.quiz_rounded,
+                  text: '10 pertanyaan mudah',
+                  isDark: isDark),
+              const SizedBox(height: 10),
+              _InfoRow(
+                  icon: Icons.analytics_rounded,
+                  text: 'Hasil langsung + rekomendasi',
+                  isDark: isDark),
+
+              const Spacer(),
+
+              GestureDetector(
+                onTap: onStart,
+                child: Container(
+                  width: double.infinity,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: AppColors.gradientGreen,
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.statusHealthy
+                            .withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'Mulai Self-Assessment',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final bool isDark;
+  const _InfoRow(
+      {required this.icon, required this.text, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 16, color: AppColors.primaryLight),
+      ),
+      const SizedBox(width: 12),
+      Text(
+        text,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: isDark ? AppColors.textWhite : AppColors.textDark,
+        ),
+      ),
+    ]);
   }
 }
 
@@ -253,6 +501,7 @@ class _QuestionnaireView extends StatelessWidget {
   final Color textSec;
   final ValueChanged<int> onSelect;
   final VoidCallback onNext;
+  final bool standalone;
 
   const _QuestionnaireView({
     required this.currentQuestion,
@@ -265,6 +514,7 @@ class _QuestionnaireView extends StatelessWidget {
     required this.textSec,
     required this.onSelect,
     required this.onNext,
+    required this.standalone,
   });
 
   static const List<Color> _optColors = [
@@ -287,8 +537,8 @@ class _QuestionnaireView extends StatelessWidget {
     final canProceed = selected != null;
 
     return Padding(
-      padding:
-          EdgeInsets.fromLTRB(20, 16, 20, kBottomNavHeight),
+      padding: EdgeInsets.fromLTRB(
+          20, 16, 20, standalone ? 20 : kBottomNavHeight),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(AppStrings.assessmentTitle,
             style: TextStyle(
@@ -550,137 +800,363 @@ class _QuestionnaireView extends StatelessWidget {
 
 class _ResultScreen extends StatelessWidget {
   final _ResultData result;
+  final List<int?> answers;
+  final List<_QuestionData> questions;
   final bool isDark;
   final Color textPrimary;
   final Color textSec;
   final VoidCallback onRestart;
+  final bool standalone;
 
   const _ResultScreen({
     required this.result,
+    required this.answers,
+    required this.questions,
     required this.isDark,
     required this.textPrimary,
     required this.textSec,
     required this.onRestart,
+    required this.standalone,
   });
+
+  int get _totalScore => answers.fold(0, (s, a) => s + (a ?? 0));
+
+  static const List<List<String>> _recommendations = [
+    // score ≤ 9: Stabil
+    [
+      'Tetap patuhi jadwal minum obat setiap hari.',
+      'Jaga jadwal kontrol rutin ke dokter mata.',
+      'Catat tekanan mata secara berkala di aplikasi ini.',
+      'Terapkan pola hidup sehat: cukup tidur, kurangi kafein.',
+    ],
+    // score ≤ 19: Perlu Dipantau
+    [
+      'Catat setiap gejala yang kamu rasakan secara rutin.',
+      'Pastikan obat tetes mata digunakan sesuai jadwal.',
+      'Segera lapor ke dokter jika gejala memburuk.',
+      'Hindari posisi membungkuk lama dan mengangkat beban berat.',
+      'Periksa tekanan mata lebih sering dari biasanya.',
+    ],
+    // score ≥ 20: Konsultasi Dokter
+    [
+      'Segera buat janji temu dengan dokter mata.',
+      'Jangan tunda konsultasi, gejala perlu dievaluasi segera.',
+      'Bawa catatan gejala dan riwayat obat saat ke dokter.',
+      'Jangan hentikan atau ubah dosis obat tanpa konfirmasi dokter.',
+      'Hindari aktivitas yang meningkatkan tekanan bola mata.',
+      'Minta dokter untuk evaluasi tekanan intraokular segera.',
+    ],
+  ];
+
+  List<String> get _currentRecs {
+    final s = _totalScore;
+    if (s <= 9) return _recommendations[0];
+    if (s <= 19) return _recommendations[1];
+    return _recommendations[2];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 40, 20, kBottomNavHeight),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(AppStrings.assessmentResult,
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: textPrimary)),
-          const SizedBox(height: 8),
-          Text('Berikut hasil asesmen gejalamu hari ini',
-              style: TextStyle(fontSize: 13, color: textSec),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 40),
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor =
+        isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final score = _totalScore;
 
-          // Result card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: result.colors,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: result.colors.first.withValues(alpha: 0.4),
-                  blurRadius: 32,
-                  offset: const Offset(0, 12),
-                ),
-              ],
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+          20, 16, 20, standalone ? 32 : kBottomNavHeight),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(AppStrings.assessmentResult,
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: textPrimary)),
+        const SizedBox(height: 4),
+        Text('Berikut hasil asesmen gejalamu hari ini',
+            style: TextStyle(fontSize: 13, color: textSec)),
+        const SizedBox(height: 20),
+
+        // ── Result Card ────────────────────────────────────────────
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: result.colors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            child: Column(children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.2),
-                ),
-                child: Icon(result.icon, color: Colors.white, size: 40),
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: result.colors.first.withValues(alpha: 0.4),
+                blurRadius: 28,
+                offset: const Offset(0, 10),
               ),
-              const SizedBox(height: 20),
-              Text(
-                result.title,
-                style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                result.subtitle,
-                style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xCCFFFFFF),
-                    height: 1.6),
-                textAlign: TextAlign.center,
-              ),
-            ]),
+            ],
           ),
-          const SizedBox(height: 32),
-
-          // Tips
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkCard : AppColors.lightCard,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          child: Row(children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.2),
               ),
+              child: Icon(result.icon, color: Colors.white, size: 32),
             ),
-            child: Row(children: [
-              const Icon(Icons.tips_and_updates_rounded,
-                  color: AppColors.statusMonitor, size: 22),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Catat hasil ini dan bagikan ke dokter saat kontrol berikutnya.',
-                  style: TextStyle(fontSize: 13, color: textSec, height: 1.5),
-                ),
-              ),
-            ]),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      result.title,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      result.subtitle,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xCCFFFFFF),
+                          height: 1.5),
+                    ),
+                  ]),
+            ),
+          ]),
+        ),
+        const SizedBox(height: 20),
 
-          // Restart button
+        // ── Recommendations ────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Icon(Icons.tips_and_updates_rounded,
+                      color: result.statusColor, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Rekomendasi Untukmu',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary),
+                  ),
+                ]),
+                const SizedBox(height: 14),
+                ..._currentRecs.map((rec) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 20,
+                              height: 20,
+                              margin: const EdgeInsets.only(top: 1),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: result.statusColor
+                                    .withValues(alpha: 0.15),
+                              ),
+                              child: Icon(Icons.check_rounded,
+                                  size: 12, color: result.statusColor),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(rec,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: textSec,
+                                      height: 1.5)),
+                            ),
+                          ]),
+                    )),
+              ]),
+        ),
+        const SizedBox(height: 16),
+
+        // ── Score Summary ──────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Icon(Icons.bar_chart_rounded,
+                      color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Skor dari 10 Pertanyaan',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: textPrimary),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: result.statusColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'Total: $score / 30',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: result.statusColor),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 14),
+                ...List.generate(questions.length, (i) {
+                  final ans = answers[i] ?? 0;
+                  final maxAns = questions[i].options.length - 1;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${i + 1}',
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryLight),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                questions[i].text,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: textSec,
+                                    height: 1.4),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: maxAns == 0
+                                          ? 0
+                                          : ans / maxAns,
+                                      backgroundColor: isDark
+                                          ? AppColors.darkCardAlt
+                                          : AppColors.lightCardAlt,
+                                      valueColor:
+                                          AlwaysStoppedAnimation(
+                                              result.statusColor),
+                                      minHeight: 5,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  questions[i].options[ans],
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: result.statusColor),
+                                ),
+                              ]),
+                            ]),
+                      ),
+                    ]),
+                  );
+                }),
+              ]),
+        ),
+        const SizedBox(height: 20),
+
+        // ── Buttons ────────────────────────────────────────────────
+        if (standalone) ...[
           GestureDetector(
-            onTap: onRestart,
+            onTap: () => Navigator.of(context).pop(),
             child: Container(
               width: double.infinity,
               height: 52,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCardAlt : AppColors.lightCardAlt,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                gradient: const LinearGradient(
+                  colors: AppColors.gradientPurple,
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.4),
+                    blurRadius: 14,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
               alignment: Alignment.center,
-              child: Text(
-                AppStrings.restartAssessment,
+              child: const Text(
+                'Kembali ke Dashboard',
                 style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textPrimary),
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700),
               ),
             ),
           ),
+          const SizedBox(height: 12),
         ],
-      ),
+        GestureDetector(
+          onTap: onRestart,
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkCardAlt : AppColors.lightCardAlt,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              AppStrings.restartAssessment,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: textPrimary),
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }

@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/providers/iop_provider.dart';
+import '../../../core/providers/medication_provider.dart';
 import '../../widgets/gradient_card.dart';
+import '../assessment/assessment_screen.dart';
 import '../home/home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -41,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     final iop = context.watch<IopProvider>();
+    final medProvider = context.watch<MedicationProvider>();
     final isNormal = iop.latest.right <= 21 && iop.latest.left <= 21;
     final badgeColor =
         isNormal ? AppColors.statusHealthy : AppColors.statusDoctor;
@@ -141,46 +144,21 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
           const SizedBox(height: 16),
 
-          // ── Stats Row ──────────────────────────────────────────────
-          Row(children: [
-            Expanded(
-              child: _StatCard(
-                isDark: isDark,
-                icon: Icons.check_circle_rounded,
-                iconColor: AppColors.statusHealthy,
-                label: AppStrings.medicationAdherence,
-                value: '85%',
-                subtitle: 'Minggu ini',
-                gradientColors: AppColors.gradientGreen,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _StatCard(
-                isDark: isDark,
-                icon: Icons.calendar_today_rounded,
-                iconColor: AppColors.secondary,
-                label: 'Pemeriksaan',
-                value: '15 Hari',
-                subtitle: 'Lagi',
-                gradientColors: AppColors.gradientCyan,
-              ),
-            ),
-          ]),
-          const SizedBox(height: 20),
-
-          // ── Quick Actions ───────────────────────────────────────────
-          Text(
-            AppStrings.quickActions,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: textPrimary),
-          ),
-          const SizedBox(height: 12),
-          _QuickActionsGrid(
+          // ── Med Log Card ────────────────────────────────────────────
+          _MedLogCard(
+            med: medProvider,
             isDark: isDark,
-            onTab: widget.onNavigateToTab,
+            textPrimary: textPrimary,
+            textSec: textSec,
+            onViewAll: () => widget.onNavigateToTab?.call(1),
+          ),
+          const SizedBox(height: 16),
+
+          // ── Self-Assessment CTA ──────────────────────────────────────
+          _AssessmentCtaCard(
+            isDark: isDark,
+            textPrimary: textPrimary,
+            textSec: textSec,
           ),
         ],
       ),
@@ -456,172 +434,340 @@ class _ChartLegend extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final bool isDark;
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String value;
-  final String subtitle;
-  final List<Color> gradientColors;
+// ─── Med Log Card ────────────────────────────────────────────────────────────
 
-  const _StatCard({
+class _MedLogCard extends StatelessWidget {
+  final MedicationProvider med;
+  final bool isDark;
+  final Color textPrimary;
+  final Color textSec;
+  final VoidCallback onViewAll;
+
+  const _MedLogCard({
+    required this.med,
     required this.isDark,
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-    required this.subtitle,
-    required this.gradientColors,
+    required this.textPrimary,
+    required this.textSec,
+    required this.onViewAll,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final meds = med.medications;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(20),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: isDark
             ? []
             : [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 12,
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 )
               ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-                colors: gradientColors,
+        Row(children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1DE9B6), Color(0xFF1565C0)],
                 begin: Alignment.topLeft,
-                end: Alignment.bottomRight),
-            borderRadius: BorderRadius.circular(12),
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.medication_rounded,
+                color: Colors.white, size: 18),
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
-        ),
-        const SizedBox(height: 12),
-        Text(value,
-            style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: Colors.white)),
-        const SizedBox(height: 2),
-        Text(subtitle,
-            style: const TextStyle(
-                fontSize: 11, color: AppColors.textSecondaryDark)),
-        const SizedBox(height: 4),
-        Text(label,
-            style: const TextStyle(
+          const SizedBox(width: 10),
+          Text(
+            'Log Obat Hari Ini',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: textPrimary),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: onViewAll,
+            child: Text(
+              'Lihat Semua',
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 14),
+
+        // Progress row
+        Row(children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: med.totalCount == 0
+                    ? 0
+                    : med.takenCount / med.totalCount,
+                backgroundColor: isDark
+                    ? AppColors.darkCardAlt
+                    : AppColors.lightCardAlt,
+                valueColor: const AlwaysStoppedAnimation(
+                    AppColors.statusHealthy),
+                minHeight: 8,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            '${med.takenCount}/${med.totalCount} obat',
+            style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondaryDark)),
+                color: textSec),
+          ),
+        ]),
+        const SizedBox(height: 14),
+
+        if (meds.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'Belum ada jadwal obat hari ini.',
+              style: TextStyle(fontSize: 13, color: textSec),
+            ),
+          )
+        else
+          ...meds.take(3).map((m) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: m.taken
+                        ? AppColors.statusHealthy
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: m.taken
+                          ? AppColors.statusHealthy
+                          : (isDark
+                              ? AppColors.darkBorder
+                              : Colors.grey.shade400),
+                      width: 2,
+                    ),
+                  ),
+                  child: m.taken
+                      ? const Icon(Icons.check_rounded,
+                          color: Colors.white, size: 13)
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    m.name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: m.taken ? textSec : textPrimary,
+                      decoration: m.taken
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationColor: textSec,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.primary.withValues(alpha: 0.12)
+                        : const Color(0xFFE3F2FD),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    m.time,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? AppColors.secondary
+                          : const Color(0xFF1565C0),
+                    ),
+                  ),
+                ),
+              ]),
+            );
+          }),
+        if (meds.length > 3) ...[
+          const SizedBox(height: 2),
+          Text(
+            '+${meds.length - 3} obat lainnya',
+            style: const TextStyle(
+                fontSize: 12, color: AppColors.primary),
+          ),
+        ],
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: med.takenCount == med.totalCount && med.totalCount > 0
+                ? AppColors.statusHealthy.withValues(alpha: 0.10)
+                : AppColors.statusMonitor.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: med.takenCount == med.totalCount && med.totalCount > 0
+                  ? AppColors.statusHealthy.withValues(alpha: 0.3)
+                  : AppColors.statusMonitor.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(children: [
+            Icon(
+              med.takenCount == med.totalCount && med.totalCount > 0
+                  ? Icons.check_circle_rounded
+                  : Icons.info_outline_rounded,
+              size: 14,
+              color: med.takenCount == med.totalCount && med.totalCount > 0
+                  ? AppColors.statusHealthy
+                  : AppColors.statusMonitor,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                med.takenCount == med.totalCount && med.totalCount > 0
+                    ? 'Semua obat hari ini sudah diminum!'
+                    : 'Masih ada ${med.totalCount - med.takenCount} obat yang belum diminum.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: med.takenCount == med.totalCount &&
+                          med.totalCount > 0
+                      ? AppColors.statusHealthy
+                      : AppColors.statusMonitor,
+                ),
+              ),
+            ),
+          ]),
+        ),
       ]),
     );
   }
 }
 
-class _QuickActionsGrid extends StatelessWidget {
+// ─── Assessment CTA Card ─────────────────────────────────────────────────────
+
+class _AssessmentCtaCard extends StatelessWidget {
   final bool isDark;
-  final void Function(int)? onTab;
-  const _QuickActionsGrid({required this.isDark, this.onTab});
+  final Color textPrimary;
+  final Color textSec;
 
-  static const _actions = [
-    _Action(
-        icon: Icons.water_drop_rounded,
-        label: 'Catat\nTekanan',
-        gradient: AppColors.gradientPurple,
-        tabIndex: 3),
-    _Action(
-        icon: Icons.medication_rounded,
-        label: 'Log\nObat',
-        gradient: AppColors.gradientCyan,
-        tabIndex: 1),
-    _Action(
-        icon: Icons.quiz_rounded,
-        label: 'Asesmen\nGejala',
-        gradient: AppColors.gradientGreen,
-        tabIndex: 2),
-    _Action(
-        icon: Icons.menu_book_rounded,
-        label: 'Edukasi\nMata',
-        gradient: AppColors.gradientWarm,
-        tabIndex: 4),
-  ];
+  const _AssessmentCtaCard({
+    required this.isDark,
+    required this.textPrimary,
+    required this.textSec,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 4,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: _actions
-          .map((a) => _QuickActionItem(action: a, onTab: onTab))
-          .toList(),
-    );
-  }
-}
-
-class _QuickActionItem extends StatelessWidget {
-  final _Action action;
-  final void Function(int)? onTab;
-  const _QuickActionItem({required this.action, this.onTab});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onTab?.call(action.tabIndex),
-      child: Column(
-        children: [
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.25),
+        ),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                )
+              ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: action.gradient,
+              gradient: const LinearGradient(
+                colors: AppColors.gradientGreen,
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.remove_red_eye_rounded,
+                color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            'Cek Kondisi Mata Hari Ini',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: textPrimary),
+          ),
+        ]),
+        const SizedBox(height: 10),
+        Text(
+          'Yuk cek kondisi mata kamu hari ini dengan kuis singkat! Hanya butuh 1 menit kok 😊',
+          style: TextStyle(fontSize: 13, color: textSec, height: 1.5),
+        ),
+        const SizedBox(height: 16),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) => const AssessmentScreen(
+                        standalone: true,
+                      )),
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: AppColors.gradientGreen,
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: action.gradient.first.withValues(alpha: 0.4),
-                  blurRadius: 10,
+                  color: AppColors.statusHealthy.withValues(alpha: 0.35),
+                  blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: Icon(action.icon, color: Colors.white, size: 24),
+            alignment: Alignment.center,
+            child: const Text(
+              'Mulai Self-Assessment',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700),
+            ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            action.label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondaryDark),
-          ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
-}
-
-class _Action {
-  final IconData icon;
-  final String label;
-  final List<Color> gradient;
-  final int tabIndex;
-  const _Action(
-      {required this.icon,
-      required this.label,
-      required this.gradient,
-      required this.tabIndex});
 }

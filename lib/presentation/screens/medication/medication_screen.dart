@@ -1,21 +1,8 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/providers/medication_provider.dart';
 import '../home/home_screen.dart';
-
-//  Data model 
-
-class _MedItem {
-  String name;
-  String time; // "HH:mm"
-  String note;
-  bool taken = false;
-
-  _MedItem({
-    required this.name,
-    required this.time,
-    this.note = '',
-  });
-}
 
 //  Screen 
 
@@ -28,12 +15,6 @@ class MedicationScreen extends StatefulWidget {
 
 class _MedicationScreenState extends State<MedicationScreen>
     with SingleTickerProviderStateMixin {
-  final List<_MedItem> _medications = [
-    _MedItem(name: 'Timolol 0.5%', time: '08:00', note: 'Mata kiri & kanan'),
-    _MedItem(name: 'Latanoprost 0.005%', time: '14:00', note: 'Mata kiri'),
-    _MedItem(name: 'Timolol 0.5%', time: '20:00', note: 'Mata kiri & kanan'),
-  ];
-
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
@@ -54,16 +35,8 @@ class _MedicationScreenState extends State<MedicationScreen>
     super.dispose();
   }
 
-  int get _takenCount => _medications.where((m) => m.taken).length;
-  int get _totalCount => _medications.length;
-  int get _percentage =>
-      _totalCount == 0 ? 0 : ((_takenCount / _totalCount) * 100).round();
-
-  void _toggleMed(int index) {
-    setState(() => _medications[index].taken = !_medications[index].taken);
-  }
-
   Future<void> _showAddDialog() async {
+    final medProvider = context.read<MedicationProvider>();
     final nameCtrl = TextEditingController();
     final noteCtrl = TextEditingController();
     TimeOfDay? selectedTime;
@@ -236,16 +209,12 @@ class _MedicationScreenState extends State<MedicationScreen>
                       onPressed: () {
                         if (nameCtrl.text.trim().isNotEmpty &&
                             selectedTime != null) {
-                          setState(() {
-                            _medications.add(_MedItem(
-                              name: nameCtrl.text.trim(),
-                              time:
-                                  '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}',
-                              note: noteCtrl.text.trim(),
-                            ));
-                            _medications
-                                .sort((a, b) => a.time.compareTo(b.time));
-                          });
+                          medProvider.addMed(MedItem(
+                            name: nameCtrl.text.trim(),
+                            time:
+                                '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+                            note: noteCtrl.text.trim(),
+                          ));
                           Navigator.pop(ctx);
                         }
                       },
@@ -270,6 +239,7 @@ class _MedicationScreenState extends State<MedicationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final medProvider = context.watch<MedicationProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textPrimary = isDark ? AppColors.textWhite : AppColors.textDark;
     final textSec =
@@ -277,7 +247,7 @@ class _MedicationScreenState extends State<MedicationScreen>
     final cardColor = isDark ? AppColors.darkCard : AppColors.lightCard;
     final borderColor =
         isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final remaining = _totalCount - _takenCount;
+    final remaining = medProvider.totalCount - medProvider.takenCount;
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -369,7 +339,7 @@ class _MedicationScreenState extends State<MedicationScreen>
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '$_takenCount',
+                            '${medProvider.takenCount}',
                             style: const TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.w900,
@@ -390,7 +360,7 @@ class _MedicationScreenState extends State<MedicationScreen>
                           Padding(
                             padding: const EdgeInsets.only(bottom: 5),
                             child: Text(
-                              '$_totalCount',
+                              '${medProvider.totalCount}',
                               style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
@@ -415,16 +385,16 @@ class _MedicationScreenState extends State<MedicationScreen>
                   height: 76,
                   child: Stack(alignment: Alignment.center, children: [
                     CircularProgressIndicator(
-                      value: _totalCount == 0
+                      value: medProvider.totalCount == 0
                           ? 0
-                          : _takenCount / _totalCount,
+                          : medProvider.takenCount / medProvider.totalCount,
                       backgroundColor: Colors.white.withValues(alpha: 0.25),
                       valueColor:
                           const AlwaysStoppedAnimation(Colors.white),
                       strokeWidth: 7,
                     ),
                     Text(
-                      '$_percentage%',
+                      '${medProvider.percentage}%',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
@@ -448,7 +418,7 @@ class _MedicationScreenState extends State<MedicationScreen>
           ),
           const SizedBox(height: 12),
 
-          if (_medications.isEmpty)
+          if (medProvider.medications.isEmpty)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 32),
               alignment: Alignment.center,
@@ -473,7 +443,7 @@ class _MedicationScreenState extends State<MedicationScreen>
               ]),
             )
           else
-            ..._medications.asMap().entries.map((entry) {
+            ...medProvider.medications.asMap().entries.map((entry) {
               final idx = entry.key;
               final med = entry.value;
               return Padding(
@@ -485,8 +455,10 @@ class _MedicationScreenState extends State<MedicationScreen>
                   borderColor: borderColor,
                   textPrimary: textPrimary,
                   textSec: textSec,
-                  onToggle: () => _toggleMed(idx),
-                  onDelete: () => setState(() => _medications.removeAt(idx)),
+                  onToggle: () =>
+                      context.read<MedicationProvider>().toggleTaken(idx),
+                  onDelete: () =>
+                      context.read<MedicationProvider>().deleteMed(idx),
                 ),
               );
             }),
@@ -499,7 +471,7 @@ class _MedicationScreenState extends State<MedicationScreen>
 //  Med Tile 
 
 class _MedTile extends StatelessWidget {
-  final _MedItem med;
+  final MedItem med;
   final bool isDark;
   final Color cardColor;
   final Color borderColor;
