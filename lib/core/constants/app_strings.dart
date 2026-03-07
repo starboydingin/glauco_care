@@ -45,10 +45,16 @@ class AppStrings {
   static const String restartAssessment = 'Ulangi Asesmen';
 
   static const List<String> questions = [
-    'Bagaimana kondisi penglihatanmu hari ini?',
-    'Apakah matamu terasa sakit atau tidak nyaman?',
-    'Apakah kamu mengalami sakit kepala di sekitar mata?',
-    'Apakah kamu melihat halo di sekitar lampu?',
+    'Bagaimana kondisi ketajaman penglihatanmu saat ini?',
+    'Apakah kamu merasakan tekanan atau rasa berat pada bola mata?',
+    'Apakah kamu mengalami sakit kepala di sekitar mata atau dahi?',
+    'Apakah kamu melihat lingkaran cahaya (halo) di sekitar lampu, terutama saat malam hari?',
+    'Apakah penglihatan di bagian samping terasa berkurang atau menyempit?',
+    'Apakah kamu mengalami mata merah tanpa sebab yang jelas?',
+    'Apakah matamu terasa lebih sensitif terhadap cahaya terang?',
+    'Apakah kamu merasa penglihatan memburuk secara perlahan dalam beberapa minggu terakhir?',
+    'Apakah kamu mengalami kesulitan melihat dalam kondisi cahaya redup atau malam hari?',
+    'Apakah kamu pernah merasakan nyeri mata yang disertai mual atau rasa tidak nyaman pada mata?',
   ];
 
   static const List<String> answerOptions = [

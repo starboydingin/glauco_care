@@ -13,7 +13,10 @@ class AssessmentScreen extends StatefulWidget {
 class _AssessmentScreenState extends State<AssessmentScreen>
     with SingleTickerProviderStateMixin {
   int _currentQuestion = 0;
-  final List<int?> _answers = [null, null, null, null];
+  final List<int?> _answers = [
+    null, null, null, null, null,
+    null, null, null, null, null,
+  ];
   bool _showResult = false;
 
   late AnimationController _animController;
@@ -22,20 +25,106 @@ class _AssessmentScreenState extends State<AssessmentScreen>
 
   static const List<_QuestionData> _questions = [
     _QuestionData(
-      index: 0,
+      text: 'Bagaimana kondisi ketajaman penglihatanmu saat ini?',
       icon: Icons.visibility_rounded,
+      options: [
+        'Jelas seperti biasa',
+        'Sedikit lebih kabur dari biasanya',
+        'Cukup kabur dan mengganggu aktivitas',
+        'Sangat kabur',
+      ],
     ),
     _QuestionData(
-      index: 1,
+      text: 'Apakah kamu merasakan tekanan atau rasa berat pada bola mata?',
       icon: Icons.healing_rounded,
+      options: [
+        'Tidak ada sama sekali',
+        'Kadang terasa ringan',
+        'Cukup terasa dan mengganggu',
+        'Sangat terasa / nyeri',
+      ],
     ),
     _QuestionData(
-      index: 2,
+      text: 'Apakah kamu mengalami sakit kepala di sekitar mata atau dahi?',
       icon: Icons.sick_rounded,
+      options: [
+        'Tidak pernah',
+        'Kadang terjadi',
+        'Cukup sering terjadi',
+        'Sangat sering atau berat',
+      ],
     ),
     _QuestionData(
-      index: 3,
+      text: 'Apakah kamu melihat lingkaran cahaya (halo) di sekitar lampu, terutama saat malam hari?',
       icon: Icons.light_mode_rounded,
+      options: [
+        'Tidak pernah melihat',
+        'Kadang terlihat',
+        'Cukup sering terlihat',
+        'Hampir selalu terlihat',
+      ],
+    ),
+    _QuestionData(
+      text: 'Apakah penglihatan di bagian samping terasa berkurang atau menyempit?',
+      icon: Icons.panorama_wide_angle_rounded,
+      options: [
+        'Tidak ada perubahan',
+        'Sedikit berkurang',
+        'Cukup terasa menyempit',
+        'Sangat menyempit',
+      ],
+      note:
+          'Gejala ini penting karena glaukoma sering menyebabkan penurunan penglihatan perifer secara perlahan.',
+    ),
+    _QuestionData(
+      text: 'Apakah kamu mengalami mata merah tanpa sebab yang jelas?',
+      icon: Icons.remove_red_eye_rounded,
+      options: [
+        'Tidak pernah',
+        'Jarang terjadi',
+        'Kadang terjadi',
+        'Sering terjadi',
+      ],
+    ),
+    _QuestionData(
+      text: 'Apakah matamu terasa lebih sensitif terhadap cahaya terang?',
+      icon: Icons.wb_sunny_rounded,
+      options: [
+        'Tidak sensitif',
+        'Sedikit sensitif',
+        'Cukup sensitif',
+        'Sangat sensitif / silau',
+      ],
+    ),
+    _QuestionData(
+      text: 'Apakah kamu merasa penglihatan memburuk secara perlahan dalam beberapa minggu terakhir?',
+      icon: Icons.trending_down_rounded,
+      options: [
+        'Tidak ada perubahan',
+        'Sedikit memburuk',
+        'Cukup memburuk',
+        'Memburuk secara signifikan',
+      ],
+    ),
+    _QuestionData(
+      text: 'Apakah kamu mengalami kesulitan melihat dalam kondisi cahaya redup atau malam hari?',
+      icon: Icons.nights_stay_rounded,
+      options: [
+        'Tidak ada kesulitan',
+        'Sedikit lebih sulit',
+        'Cukup sulit',
+        'Sangat sulit',
+      ],
+    ),
+    _QuestionData(
+      text: 'Apakah kamu pernah merasakan nyeri mata yang disertai mual atau rasa tidak nyaman pada mata?',
+      icon: Icons.sentiment_very_dissatisfied_rounded,
+      options: [
+        'Tidak pernah',
+        'Pernah sekali atau dua kali',
+        'Kadang terjadi',
+        'Sering terjadi',
+      ],
     ),
   ];
 
@@ -68,7 +157,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
   void _nextQuestion() {
     if (_answers[_currentQuestion] == null) return;
 
-    if (_currentQuestion < 3) {
+    if (_currentQuestion < 9) {
       _animController.forward(from: 0);
       setState(() => _currentQuestion++);
     } else {
@@ -80,7 +169,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
     _animController.forward(from: 0);
     setState(() {
       _currentQuestion = 0;
-      _answers.fillRange(0, 4, null);
+      _answers.fillRange(0, 10, null);
       _showResult = false;
     });
   }
@@ -90,7 +179,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
 
   _ResultData get _result {
     final score = _totalScore;
-    if (score <= 3) {
+    if (score <= 9) {
       return const _ResultData(
         title: 'Kondisi Stabil',
         subtitle:
@@ -99,7 +188,7 @@ class _AssessmentScreenState extends State<AssessmentScreen>
         colors: AppColors.gradientGreen,
         statusColor: AppColors.statusHealthy,
       );
-    } else if (score <= 7) {
+    } else if (score <= 19) {
       return const _ResultData(
         title: 'Perlu Dipantau',
         subtitle:
@@ -178,34 +267,23 @@ class _QuestionnaireView extends StatelessWidget {
     required this.onNext,
   });
 
-  static const List<_AnswerOption> _options = [
-    _AnswerOption(
-        label: 'Tidak sama sekali',
-        score: 0,
-        color: AppColors.statusHealthy,
-        icon: Icons.sentiment_very_satisfied_rounded),
-    _AnswerOption(
-        label: 'Sedikit',
-        score: 1,
-        color: AppColors.statusMonitor,
-        icon: Icons.sentiment_satisfied_rounded),
-    _AnswerOption(
-        label: 'Cukup mengganggu',
-        score: 2,
-        color: AppColors.statusDoctor,
-        icon: Icons.sentiment_dissatisfied_rounded),
-    _AnswerOption(
-        label: 'Sangat mengganggu',
-        score: 3,
-        color: AppColors.statusDanger,
-        icon: Icons.sentiment_very_dissatisfied_rounded),
+  static const List<Color> _optColors = [
+    AppColors.statusHealthy,
+    AppColors.statusMonitor,
+    AppColors.statusDoctor,
+    AppColors.statusDanger,
+  ];
+  static const List<IconData> _optIcons = [
+    Icons.sentiment_very_satisfied_rounded,
+    Icons.sentiment_satisfied_rounded,
+    Icons.sentiment_dissatisfied_rounded,
+    Icons.sentiment_very_dissatisfied_rounded,
   ];
 
   @override
   Widget build(BuildContext context) {
     final q = questions[currentQuestion];
     final selected = answers[currentQuestion];
-    final questionText = AppStrings.questions[q.index];
     final canProceed = selected != null;
 
     return Padding(
@@ -220,12 +298,40 @@ class _QuestionnaireView extends StatelessWidget {
         const SizedBox(height: 4),
         Text(AppStrings.assessmentSubtitle,
             style: TextStyle(fontSize: 13, color: textSec)),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
+
+        // ── Disclaimer ─────────────────────────────────────────────
+        Container(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline_rounded,
+                  color: AppColors.primary, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Self-assessment ini bertujuan untuk membantu pengguna mengenali perubahan gejala yang mungkin berkaitan dengan glaukoma. Hasil penilaian tidak menggantikan diagnosis dokter.',
+                  style: TextStyle(
+                      fontSize: 11, color: textSec, height: 1.5),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
 
         // ── Progress ───────────────────────────────────────────────
         Row(children: [
           Text(
-            'Pertanyaan ${currentQuestion + 1}/4',
+            'Pertanyaan ${currentQuestion + 1}/10',
             style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.primary,
@@ -236,7 +342,7 @@ class _QuestionnaireView extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: (currentQuestion + 1) / 4,
+                value: (currentQuestion + 1) / 10,
                 backgroundColor: isDark
                     ? AppColors.darkCardAlt
                     : AppColors.lightCardAlt,
@@ -286,12 +392,37 @@ class _QuestionnaireView extends StatelessWidget {
                       child: Icon(q.icon, color: Colors.white, size: 28),
                     ),
                     const SizedBox(height: 16),
-                    Text(questionText,
+                    Text(q.text,
                         style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                             height: 1.4)),
+                    if (q.note != null) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.lightbulb_outline_rounded,
+                                color: Colors.white70, size: 14),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(q.note!,
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white70,
+                                      height: 1.4)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ]),
             ),
           ),
@@ -301,10 +432,12 @@ class _QuestionnaireView extends StatelessWidget {
         // ── Answer Options ─────────────────────────────────────────
         Expanded(
           child: ListView.separated(
-            itemCount: _options.length,
+            itemCount: q.options.length,
             separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, i) {
-              final opt = _options[i];
+              final color = _optColors[i];
+              final icon = _optIcons[i];
+              final label = q.options[i];
               final isSelected = selected == i;
               return GestureDetector(
                 onTap: () => onSelect(i),
@@ -314,14 +447,14 @@ class _QuestionnaireView extends StatelessWidget {
                       horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? opt.color.withValues(alpha: 0.12)
+                        ? color.withValues(alpha: 0.12)
                         : (isDark
                             ? AppColors.darkCard
                             : AppColors.lightCard),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isSelected
-                          ? opt.color
+                          ? color
                           : (isDark
                               ? AppColors.darkBorder
                               : AppColors.lightBorder),
@@ -330,29 +463,29 @@ class _QuestionnaireView extends StatelessWidget {
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: opt.color.withValues(alpha: 0.3),
+                              color: color.withValues(alpha: 0.3),
                               blurRadius: 12,
                             )
                           ]
                         : [],
                   ),
                   child: Row(children: [
-                    Icon(opt.icon,
-                        color: isSelected ? opt.color : textSec,
+                    Icon(icon,
+                        color: isSelected ? color : textSec,
                         size: 24),
                     const SizedBox(width: 14),
                     Expanded(
-                      child: Text(opt.label,
+                      child: Text(label,
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: isSelected
                                   ? FontWeight.w700
                                   : FontWeight.w400,
-                              color: isSelected ? opt.color : textPrimary)),
+                              color: isSelected ? color : textPrimary)),
                     ),
                     if (isSelected)
                       Icon(Icons.check_circle_rounded,
-                          color: opt.color, size: 20),
+                          color: color, size: 20),
                   ]),
                 ),
               );
@@ -397,7 +530,7 @@ class _QuestionnaireView extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                currentQuestion < 3
+                currentQuestion < 9
                     ? AppStrings.nextQuestion
                     : AppStrings.seeResult,
                 style: TextStyle(
@@ -555,22 +688,19 @@ class _ResultScreen extends StatelessWidget {
 // ─── Data Classes ────────────────────────────────────────────────────────────
 
 class _QuestionData {
-  final int index;
+  final String text;
   final IconData icon;
-  const _QuestionData({required this.index, required this.icon});
+  final List<String> options;
+  final String? note;
+  const _QuestionData({
+    required this.text,
+    required this.icon,
+    required this.options,
+    this.note,
+  });
 }
 
-class _AnswerOption {
-  final String label;
-  final int score;
-  final Color color;
-  final IconData icon;
-  const _AnswerOption(
-      {required this.label,
-      required this.score,
-      required this.color,
-      required this.icon});
-}
+
 
 class _ResultData {
   final String title;
