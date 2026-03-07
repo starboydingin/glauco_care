@@ -1,18 +1,24 @@
+<div align="center">
+
 # 👁️ GlaucoCare — Aplikasi Pemantau Kesehatan Mata
 
-**Aplikasi Flutter untuk membantu penderita glaukoma memantau kondisi mata, kepatuhan obat, dan gejala secara mandiri.**
+**Aplikasi Flutter untuk membantu penderita glaukoma memantau kondisi mata,<br/>kepatuhan obat, dan gejala secara mandiri.**
 
-![Flutter](https://img.shields.io/badge/Frontend-Flutter%203.9%2B-02569B?logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Language-Dart-0175C2?logo=dart&logoColor=white)
-![Provider](https://img.shields.io/badge/State-Provider-7C5CBF)
-![fl_chart](https://img.shields.io/badge/Chart-fl__chart-5A3D9E)
-![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-green)
+<br/>
+
+![Flutter](https://img.shields.io/badge/Frontend-Flutter%203.9%2B-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Language-Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+![Provider](https://img.shields.io/badge/State-Provider-7C5CBF?style=for-the-badge)
+![fl_chart](https://img.shields.io/badge/Chart-fl__chart-5A3D9E?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-4CAF50?style=for-the-badge)
+
+</div>
 
 ---
 
 ## 📖 Deskripsi Singkat
 
-GlaucoCare dirancang khusus untuk membantu penderita glaukoma dalam mengelola kesehatan mata sehari-hari. Aplikasi ini menyediakan pemantauan tekanan intraokular (IOP), pencatatan jadwal obat, self-assessment gejala, dan konten edukasi klinis, semuanya dalam satu platform dengan tampilan modern dark/light mode.
+GlaucoCare dirancang khusus untuk membantu penderita **glaukoma** dalam mengelola kesehatan mata sehari-hari. Aplikasi ini menyediakan pemantauan **tekanan intraokular (IOP)**, pencatatan **jadwal obat**, **self-assessment gejala**, dan konten **edukasi klinis**, semuanya dalam satu platform dengan tampilan modern dark/light mode.
 
 ---
 
