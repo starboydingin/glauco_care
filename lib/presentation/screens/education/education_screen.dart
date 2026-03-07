@@ -29,7 +29,7 @@ class _EducationScreenState extends State<EducationScreen>
       category: 'Penyakit',
       gradient: AppColors.gradientPurple,
       content:
-          'Glaukoma adalah kelompok penyakit mata yang merusak saraf optik — saraf yang mengirim gambar visual ke otak. Kerusakan ini sering kali disebabkan oleh tekanan abnormal tinggi di mata. Glaukoma adalah salah satu penyebab utama kebutaan pada orang di atas 60 tahun, tetapi dapat dicegah jika terdeteksi dan diobati sejak dini.',
+          'Glaukoma adalah penyakit mata kronis akibat kerusakan saraf optik, sering berkaitan dengan peningkatan tekanan intraokular. Gangguan terjadi karena hambatan aliran keluar cairan mata (aqueous humor). Tanpa penanganan, dapat menyebabkan penyempitan lapang pandang hingga kebutaan permanen. Glaukoma disebut “silent thief of sight” karena sering tidak bergejala di tahap awal.',
     ),
     _EduCard(
       icon: Icons.warning_amber_rounded,
@@ -38,7 +38,7 @@ class _EducationScreenState extends State<EducationScreen>
       category: 'Penyakit',
       gradient: AppColors.gradientWarm,
       content:
-          'Faktor risiko meliputi: tekanan mata tinggi (>21 mmHg), riwayat keluarga dengan glaukoma, usia di atas 60 tahun, penyakit tertentu seperti diabetes dan tekanan darah tinggi, penggunaan kortikosteroid jangka panjang, serta cedera atau operasi mata sebelumnya.',
+          'Faktor risiko glaukoma meliputi: usia >40 tahun, riwayat keluarga dengan glaukoma, tekanan intraokular tinggi (>21 mmHg), diabetes mellitus, hipertensi, penyakit kardiovaskular, penggunaan kortikosteroid jangka panjang, riwayat cedera mata, dan kelainan anatomi mata tertentu. Pemeriksaan mata berkala sangat dianjurkan bagi yang memiliki faktor risiko tersebut.',
     ),
     _EduCard(
       icon: Icons.sick_rounded,
@@ -47,7 +47,7 @@ class _EducationScreenState extends State<EducationScreen>
       category: 'Penyakit',
       gradient: [Color(0xFFE85B5B), Color(0xFFBF3030)],
       content:
-          'Glaukoma sering disebut "pencuri penglihatan" karena tidak menunjukkan gejala awal. Pada stadium lanjut dapat muncul: penyempitan lapang pandang (tunnel vision), nyeri mata mendadak, mual dan muntah, melihat halo di sekitar cahaya, dan mata merah. Pemeriksaan mata rutin sangat penting untuk deteksi dini.',
+          'Glaukoma kronis sering tidak bergejala di awal. Gejala yang dapat muncul: penglihatan kabur, penyempitan lapang pandang (tunnel vision), melihat lingkaran cahaya (halo) di sekitar lampu, mata nyeri atau berat, serta sakit kepala. Pada glaukoma sudut tertutup akut, gejala muncul mendadak dengan nyeri hebat, mata merah, dan mual — ini merupakan kegawatdaruratan medis.',
     ),
     _EduCard(
       icon: Icons.medication_rounded,
@@ -56,7 +56,7 @@ class _EducationScreenState extends State<EducationScreen>
       category: 'Obat',
       gradient: AppColors.gradientCyan,
       content:
-          'Obat tetes mata untuk glaukoma harus digunakan secara konsisten sesuai resep dokter. Melewatkan dosis dapat menyebabkan tekanan mata meningkat kembali dan memperburuk kerusakan saraf optik. Pasang pengingat harian, simpan obat di tempat yang mudah terlihat, dan selalu bawa obat saat bepergian.',
+          'Terapi glaukoma bertujuan menurunkan tekanan intraokular untuk mencegah kerusakan saraf optik lebih lanjut. Obat tetes mata bekerja dengan mengurangi produksi atau meningkatkan aliran keluar cairan mata. Penggunaan harus sesuai dosis, jadwal, dan dilakukan rutin setiap hari. Ketidakpatuhan dapat menyebabkan tekanan mata kembali meningkat dan mempercepat penurunan penglihatan.',
     ),
     _EduCard(
       icon: Icons.event_available_rounded,
@@ -65,20 +65,33 @@ class _EducationScreenState extends State<EducationScreen>
       category: 'Tips',
       gradient: AppColors.gradientGreen,
       content:
-          'Pasien glaukoma disarankan kontrol setiap 3–6 bulan tergantung kondisi. Pemeriksaan meliputi: pengukuran tekanan mata (tonometri), penilaian lapang pandang (perimetri), dan pemeriksaan saraf optik (OCT). Jangan tunda kontrol meskipun tidak ada gejala — kerusakan bisa terjadi diam-diam.',
+          'Karena glaukoma sering berkembang tanpa gejala, pemeriksaan mata rutin sangat penting untuk deteksi dini. Pemeriksaan meliputi: tonometri (tekanan intraokular), penilaian saraf optik, pemeriksaan lapang pandang (perimetri), dan imaging struktur mata. Deteksi dini memungkinkan pengobatan lebih cepat dan mempertahankan kualitas penglihatan lebih lama.',
+    ),
+    _EduCard(
+      icon: Icons.quiz_rounded,
+      title: 'Apakah Glaukoma Bisa Disembuhkan?',
+      subtitle: 'Pertanyaan yang sering ditanyakan',
+      category: 'Tips',
+      gradient: [Color(0xFF5A3D9E), Color(0xFF3D2870)],
+      content:
+          'Glaukoma tidak dapat disembuhkan sepenuhnya karena kerusakan saraf optik bersifat permanen. Namun, penyakit ini dapat dikontrol melalui: obat tetes mata rutin, pemeriksaan berkala, serta tindakan laser atau operasi bila diperlukan. Tujuan terapi adalah menurunkan tekanan intraokular, memperlambat progresivitas, dan mempertahankan fungsi penglihatan. Dengan pengobatan tepat dan kepatuhan pasien, penderita glaukoma tetap dapat menjalani aktivitas sehari-hari dengan baik.',
     ),
   ];
 
   static const List<_SideEffectCard> _sideEffects = [
     _SideEffectCard(
       name: 'Timolol',
-      category: 'Beta-blocker',
+      category: 'Beta-blocker topikal',
       gradient: AppColors.gradientPurple,
       icon: Icons.medication_liquid_rounded,
       effects: [
         _Effect(
             icon: Icons.water_drop_outlined,
-            label: 'Iritasi mata ringan',
+            label: 'Iritasi / rasa tidak nyaman pada mata',
+            severity: 'Ringan'),
+        _Effect(
+            icon: Icons.local_fire_department_outlined,
+            label: 'Sensasi terbakar ringan',
             severity: 'Ringan'),
         _Effect(
             icon: Icons.local_drink_outlined,
@@ -90,11 +103,15 @@ class _EducationScreenState extends State<EducationScreen>
             severity: 'Ringan'),
         _Effect(
             icon: Icons.favorite_border_rounded,
-            label: 'Penurunan denyut jantung',
+            label: 'Bradikardia / penurunan denyut jantung',
+            severity: 'Perlu Perhatian'),
+        _Effect(
+            icon: Icons.air_rounded,
+            label: 'Sesak napas (risiko asma / PPOK)',
             severity: 'Perlu Perhatian'),
         _Effect(
             icon: Icons.battery_0_bar_rounded,
-            label: 'Kelelahan',
+            label: 'Kelelahan dan pusing',
             severity: 'Ringan'),
       ],
     ),
@@ -106,20 +123,28 @@ class _EducationScreenState extends State<EducationScreen>
       effects: [
         _Effect(
             icon: Icons.remove_red_eye_rounded,
-            label: 'Mata merah',
+            label: 'Mata merah (hiperemia konjungtiva)',
+            severity: 'Ringan'),
+        _Effect(
+            icon: Icons.local_fire_department_outlined,
+            label: 'Sensasi terbakar / iritasi ringan',
             severity: 'Ringan'),
         _Effect(
             icon: Icons.spa_outlined,
-            label: 'Bulu mata lebih panjang',
+            label: 'Pertumbuhan bulu mata lebih panjang',
             severity: 'Kosmetik'),
         _Effect(
             icon: Icons.palette_outlined,
-            label: 'Perubahan warna iris mata',
+            label: 'Perubahan warna iris (penggelapan)',
             severity: 'Permanen'),
         _Effect(
-            icon: Icons.local_fire_department_outlined,
-            label: 'Sensasi terbakar ringan',
-            severity: 'Ringan'),
+            icon: Icons.dark_mode_outlined,
+            label: 'Penggelapan kulit kelopak mata',
+            severity: 'Kosmetik'),
+        _Effect(
+            icon: Icons.warning_amber_rounded,
+            label: 'Edema makula (jarang)',
+            severity: 'Perlu Perhatian'),
       ],
     ),
   ];
