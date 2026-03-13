@@ -73,16 +73,19 @@ class _HomeScreenState extends State<HomeScreen> {
             bgColor: isDark ? AppColors.darkBg : AppColors.lightBg,
           ),
           const SizedBox(width: 10),
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [AppColors.primaryLight, AppColors.secondary],
-            ).createShader(bounds),
-            child: Text(
-              AppStrings.appName,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : AppColors.textDark,
+          Flexible(
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [AppColors.primaryLight, AppColors.secondary],
+              ).createShader(bounds),
+              child: Text(
+                AppStrings.appName,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : AppColors.textDark,
+                ),
               ),
             ),
           ),

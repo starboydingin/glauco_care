@@ -355,19 +355,22 @@ class _EyePressureScreenState extends State<EyePressureScreen>
                     ],
             ),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                _ChartLegend(
-                    color: AppColors.primaryLight, label: 'Kanan'),
-                const SizedBox(width: 14),
-                _ChartLegend(
-                    color: AppColors.secondary, label: 'Kiri'),
-                const SizedBox(width: 14),
-                // Normal range line
-                _ChartLegend(
-                    color: AppColors.statusDoctor.withValues(alpha: 0.7),
-                    label: 'Batas normal',
-                    dashed: true),
-              ]),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 10,
+                runSpacing: 4,
+                children: [
+                  _ChartLegend(
+                      color: AppColors.primaryLight, label: 'Kanan'),
+                  _ChartLegend(
+                      color: AppColors.secondary, label: 'Kiri'),
+                  // Normal range line
+                  _ChartLegend(
+                      color: AppColors.statusDoctor.withValues(alpha: 0.7),
+                      label: 'Batas normal',
+                      dashed: true),
+                ],
+              ),
               const SizedBox(height: 4),
               SizedBox(
                 height: 200,
@@ -475,14 +478,16 @@ class _EyePressureScreenState extends State<EyePressureScreen>
                   color: AppColors.statusMonitor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Row(children: [
+                child: Row(children: const [
                   Icon(Icons.info_outline_rounded,
                       color: AppColors.statusMonitor, size: 16),
                   SizedBox(width: 8),
-                  Text(
-                    'Garis merah putus-putus = batas normal 21 mmHg',
-                    style: TextStyle(
-                        fontSize: 11, color: AppColors.statusMonitor),
+                  Flexible(
+                    child: Text(
+                      'Garis merah putus-putus = batas normal 21 mmHg',
+                      style: TextStyle(
+                          fontSize: 11, color: AppColors.statusMonitor),
+                    ),
                   ),
                 ]),
               ),

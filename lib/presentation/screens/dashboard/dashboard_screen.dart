@@ -225,25 +225,29 @@ class _IOPValue extends StatelessWidget {
         Text(label,
             style: const TextStyle(color: Colors.white60, fontSize: 12)),
         const SizedBox(height: 4),
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: value,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    height: 1.1),
-              ),
-              TextSpan(
-                text: ' $unit',
-                style: const TextStyle(
-                    color: Colors.white60,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400),
-              ),
-            ],
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w800,
+                      height: 1.1),
+                ),
+                TextSpan(
+                  text: ' $unit',
+                  style: const TextStyle(
+                      color: Colors.white60,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -716,12 +720,14 @@ class _AssessmentCtaCard extends StatelessWidget {
                 color: Colors.white, size: 18),
           ),
           const SizedBox(width: 10),
-          Text(
-            'Cek Kondisi Mata Hari Ini',
-            style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: textPrimary),
+          Flexible(
+            child: Text(
+              'Cek Kondisi Mata Hari Ini',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: textPrimary),
+            ),
           ),
         ]),
         const SizedBox(height: 10),
