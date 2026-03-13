@@ -417,31 +417,31 @@ class _EyePressureScreenState extends State<EyePressureScreen>
                           },
                         ),
                       ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          interval: 4,
-                          getTitlesWidget: (value, meta) => Text(
-                            '${value.toInt()}',
-                            style: TextStyle(fontSize: 9, color: textSec),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 26,
+                              interval: 4,
+                              getTitlesWidget: (value, meta) => Text(
+                                '${value.toInt()}',
+                                style: TextStyle(fontSize: 8, color: textSec),
                           ),
                         ),
                       ),
                     ),
                     borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      // Right eye
-                      _buildLine(
-                          records
-                              .asMap()
-                              .entries
-                              .map((e) => FlSpot(
-                                  e.key.toDouble(),
-                                  e.value.right.toDouble()))
-                              .toList(),
-                          AppColors.primaryLight,
-                          AppColors.primary),
+                      child: Row(children: [
+                        const Icon(Icons.info_outline_rounded,
+                            color: AppColors.statusMonitor, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Garis merah putus-putus = batas normal 21 mmHg',
+                            style: const TextStyle(
+                                fontSize: 11, color: AppColors.statusMonitor),
+                          ),
+                        ),
+                      ]),
                       // Left eye
                       _buildLine(
                           records
