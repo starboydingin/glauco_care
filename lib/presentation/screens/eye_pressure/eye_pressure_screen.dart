@@ -417,31 +417,31 @@ class _EyePressureScreenState extends State<EyePressureScreen>
                           },
                         ),
                       ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 26,
-                              interval: 4,
-                              getTitlesWidget: (value, meta) => Text(
-                                '${value.toInt()}',
-                                style: TextStyle(fontSize: 8, color: textSec),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 26,
+                          interval: 4,
+                          getTitlesWidget: (value, meta) => Text(
+                            '${value.toInt()}',
+                            style: TextStyle(fontSize: 8, color: textSec),
                           ),
                         ),
                       ),
                     ),
                     borderData: FlBorderData(show: false),
-                      child: Row(children: [
-                        const Icon(Icons.info_outline_rounded,
-                            color: AppColors.statusMonitor, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Garis merah putus-putus = batas normal 21 mmHg',
-                            style: const TextStyle(
-                                fontSize: 11, color: AppColors.statusMonitor),
-                          ),
-                        ),
-                      ]),
+                    lineBarsData: [
+                      // Right eye
+                      _buildLine(
+                          records
+                              .asMap()
+                              .entries
+                              .map((e) => FlSpot(
+                                  e.key.toDouble(),
+                                  e.value.right.toDouble()))
+                              .toList(),
+                          AppColors.primaryLight,
+                          AppColors.primary),
                       // Left eye
                       _buildLine(
                           records
@@ -460,8 +460,7 @@ class _EyePressureScreenState extends State<EyePressureScreen>
                           FlSpot(records.length.toDouble() - 1, 21),
                         ],
                         isCurved: false,
-                        color: AppColors.statusDoctor
-                            .withValues(alpha: 0.5),
+                        color: AppColors.statusDoctor.withValues(alpha: 0.5),
                         barWidth: 1.5,
                         dotData: const FlDotData(show: false),
                         dashArray: [6, 4],
@@ -478,14 +477,14 @@ class _EyePressureScreenState extends State<EyePressureScreen>
                   color: AppColors.statusMonitor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(children: const [
-                  Icon(Icons.info_outline_rounded,
+                child: Row(children: [
+                  const Icon(Icons.info_outline_rounded,
                       color: AppColors.statusMonitor, size: 16),
-                  SizedBox(width: 8),
-                  Flexible(
+                  const SizedBox(width: 8),
+                  Expanded(
                     child: Text(
                       'Garis merah putus-putus = batas normal 21 mmHg',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 11, color: AppColors.statusMonitor),
                     ),
                   ),
